@@ -148,6 +148,36 @@ int urlParse(const char* url, char** page, char** host)
     return 0;
 }
 
+
+
+int urlParse2Index(const char* url, int* page, int* host)
+{
+    //bool inPage = 1;
+    size_t len = strlen(utl)+1;
+    
+    int hostIndex = 0;
+    int pageIndex = 0;
+    
+    
+    int i = 0;
+    
+    if(len > 7 && url[i+0] == 'h' && url[i+1] == 't' && url[i+2] == 't' && url[i+3] == 'p' && url[i+4] == ':' && url[i+5] == '/' && url[i+6] == '/')
+        i=i+7;
+    if(len > 8 && url[i+0] == 'h' && url[i+1] == 't' && url[i+2] == 't' && url[i+3] == 'p' && url[i+4] == 's' && url[i+5] == ':' && url[i+6] == '/' && url[i+7] == '/')
+        i=i+8;
+    *host = i;
+    *page = -1;
+    for(;url[i] != '\0' && *page < 1;i++)
+    {
+        if(url[i] == '/')
+        {
+            //*page[pageIndex] = url[i];
+            //pageIndex++;
+        }
+    }
+    return 0;
+}
+
 int getPageFromUrl(const char* url, char** out)
 {
     int retcode = 0;
@@ -186,7 +216,7 @@ int getPageFromUrl(const char* url, char** out)
     strcat(request,"Host: ");strcat(request,host);strcat(request,"\r\n");
     strcat(request,"\r\n");
     
-    send(c,request,strlen(request)+1,0);
+    send(c,request,strlen(request),0);
     
     responseHeaderLen = recv(c,responseHeader,2047,0);  //RESPONSE HEADER HTTP
     

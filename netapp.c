@@ -300,24 +300,25 @@ int getUpnpInfo(void** ins)
 {
     struct http_param** in = *ins;
     SOCKET client = INVALID_SOCKET;
-    int retcode = configServer_UDP_Broadcast(&client,55489);
-    if (retcode != 0) // If the server start was a success
-        return retcode;
-        
-    int r = 0;
+    int r = 0; //return code
     char buffer[1024] = {'\0'};
     struct sockaddr_in from;
     struct sockaddr_in to;
     int fromlen = sizeof(from);
+    clock_t lastr; // last receive
+    int i =0; //counting number of connection
+
+    r = configServer_UDP_Broadcast(&client,55489);
+    if (r != 0) // If the server start was a success
+        return retcode;
+        
     
     to.sin_family = AF_INET;
     to.sin_port = htons(1900);
     to.sin_addr.s_addr = INADDR_BROADCAST;
     
     r = sendto(client,cUPNP_req_WANIP,strlen(cUPNP_req_WANIP)+1,0,&to,fromlen);
-    
-    clock_t lastr = clock();
-    int i =0;
+    lastr = clock();
     while(exiting_bool != 1)
     {
         if(isaccept(&client))
@@ -353,11 +354,11 @@ int getUpnpInfo(void** ins)
             //free(t);
         }
         else{
-            Sleep(10);
             if(clock()-lastr>4000)
             {
                 exiting_bool=1;
             }
+            Sleep(10);
         }
         
     }

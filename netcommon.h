@@ -2,10 +2,14 @@
 #define L_NETCOMMON
 
 #include <stdbool.h>
-#include <winsock2.h>
 #include <string.h>
 
-
+#ifdef _WIN32	
+#include <winsock2.h>
+#elif linux
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
 
 /**
  * Is a client asking for connection

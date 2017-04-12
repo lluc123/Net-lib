@@ -6,9 +6,22 @@
 
 #ifdef _WIN32	
 #include <winsock2.h>
+#define initNet() \
+WSADATA wsaData;\
+iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
+    if(iResult != 0) {\
+        printf("fail\n");\
+        return 1;\
+    }
 #elif linux
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#define initNet()
+typedef int SOCKET;
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define closesocket close
 #endif
 
 /**

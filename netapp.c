@@ -1,12 +1,14 @@
 #include <stdio.h>
-#include <winsock2.h>
-#include <Windows.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
 #include <time.h>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include "netcommon.h"
 #include "parser.h"
@@ -74,16 +76,10 @@ void printUpnpInfo(struct http_param** in);
 //====================
 int main (int argc, char **argv)
 {
-    WSADATA wsaData;
     int iResult = 0;
     signal(SIGINT, sighandler); //Gestion du signal CTRL+C
     signal(SIGTERM, sighandler);
-    
-    iResult = WSAStartup(MAKEWORD(2,2),&wsaData);
-    if(iResult != 0) {
-        printf("fail\n");
-        return 1;
-    }
+    initNet();
 
     SOCKET s = INVALID_SOCKET;
     #ifdef M_TCP

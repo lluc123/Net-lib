@@ -19,9 +19,14 @@ iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
 #include <netinet/in.h>
 #define initNet()
 typedef int SOCKET;
+typedef struct sockaddr_in SOCKADDR_IN;
+typedef struct sockaddr SOCKADDR;
+typedef struct in_addr IN_ADDR;
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #define closesocket close
+#else
+#error not defined for this platform
 #endif
 
 /**

@@ -306,7 +306,7 @@ int getUpnpInfo(void** ins)
 
     r = configServer_UDP_Broadcast(&client,55489);
     if (r != 0) // If the server start was a success
-        return retcode;
+        return r;
         
     
     to.sin_family = AF_INET;

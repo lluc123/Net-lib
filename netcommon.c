@@ -178,7 +178,7 @@ int urlParse2Index(const char* url, int* page, int* host)
     return 0;
 }
 
-int getPageFromUrl(const char* url, char** out)
+int getPageFromUrl(char* url, char** out)
 {
     int retcode = 0;
     int iResult = 0;

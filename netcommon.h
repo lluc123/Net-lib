@@ -17,6 +17,7 @@ iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #define initNet()
 typedef int SOCKET;
 typedef struct sockaddr_in SOCKADDR_IN;

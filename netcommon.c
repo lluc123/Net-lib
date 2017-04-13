@@ -114,7 +114,7 @@ bool isrecv(SOCKET* t) {
 int urlParse(const char* url, char** page, char** host)
 {
     //bool inPage = 1;
-    size_t len = strlen(utl)+1;
+    size_t len = strlen(url)+1;
     *page = malloc(len);
     *host = malloc(len);
     
@@ -153,7 +153,7 @@ int urlParse(const char* url, char** page, char** host)
 int urlParse2Index(const char* url, int* page, int* host)
 {
     //bool inPage = 1;
-    size_t len = strlen(utl)+1;
+    size_t len = strlen(url)+1;
     
     int hostIndex = 0;
     int pageIndex = 0;

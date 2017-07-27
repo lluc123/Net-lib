@@ -15,7 +15,7 @@ int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
         printf("setsockopt failed with error: %d\n",WSAGetLastError());
         return -1;
     }
-    iResult = setsockopt(*t,SOL_SOCKET,SO_REUSEADDR,(char*)&BroadcastOn,sizeof(int));   //Allow binding to used Socket
+    iResult = setsockopt(*t,SOL_SOCKET,SO_REUSEADDR,(char*)&BroadcastOn,sizeof(int));   //Allow binding to used Socket (port number)
     if(iResult == SOCKET_ERROR)
     {
         printf("setsockopt failed with error: %d\n",WSAGetLastError());
@@ -54,7 +54,7 @@ int configServer_UDP(SOCKET *t, const u_short port)
         printf("bind failed with error: %d\n",WSAGetLastError());
         return -1;
     }
-    printf("UDP server up\n");
+    //printf("UDP server up\n");
     return 0;
 }
 
@@ -81,7 +81,7 @@ int configServer_TCP(SOCKET *t, const u_short port) {
         closesocket(*t);
         return -1;
     }
-    printf("TCP server up\n");
+    //printf("TCP server up\n");
     return 0;
 }
 

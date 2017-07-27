@@ -7,12 +7,14 @@
 #ifdef _WIN32	
 #include <winsock2.h>
 #define initNet() \
+do {\
 WSADATA wsaData;\
 iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
     if(iResult != 0) {\
         printf("fail\n");\
         return 1;\
-    }
+    }\
+}while(0)
 #elif linux
 #include <sys/types.h>
 #include <sys/socket.h>

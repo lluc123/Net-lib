@@ -6,19 +6,19 @@ int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
     int BroadcastOn = 1;
     *t = socket(AF_INET, SOCK_DGRAM, 0);
     if ( *t == INVALID_SOCKET ) {
-        printf("Socket failed with error: %d\n",WSAGetLastError());
+        printf("Socket failed with error: %d\n",errno);
         return -1;
     }
     iResult = setsockopt(*t,SOL_SOCKET,SO_BROADCAST,(char*)&BroadcastOn,sizeof(int));   //Allow the use of Bradcast ?
     if(iResult == SOCKET_ERROR)
     {
-        printf("setsockopt failed with error: %d\n",WSAGetLastError());
+        printf("setsockopt failed with error: %d\n",errno);
         return -1;
     }
     iResult = setsockopt(*t,SOL_SOCKET,SO_REUSEADDR,(char*)&BroadcastOn,sizeof(int));   //Allow binding to used Socket (port number)
     if(iResult == SOCKET_ERROR)
     {
-        printf("setsockopt failed with error: %d\n",WSAGetLastError());
+        printf("setsockopt failed with error: %d\n",errno);
         return -1;
     }
     struct sockaddr_in localAddress;
@@ -28,7 +28,7 @@ int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
 
     iResult = bind(*t, (SOCKADDR*)&localAddress, sizeof(localAddress));
     if ( iResult == SOCKET_ERROR ) {
-        printf("bind failed with error: %d\n",WSAGetLastError());
+        printf("bind failed with error: %d\n",errno);
         return -1;
     }
     
@@ -41,7 +41,7 @@ int configServer_UDP(SOCKET *t, const u_short port)
     
     *t = socket(AF_INET, SOCK_DGRAM, 0);
     if ( *t == INVALID_SOCKET ) {
-        printf("Socket failed with error: %d\n",WSAGetLastError());
+        printf("Socket failed with error: %d\n",errno);
         return -1;
     }
     struct sockaddr_in localAddress;
@@ -51,7 +51,7 @@ int configServer_UDP(SOCKET *t, const u_short port)
 
     iResult = bind(*t, (SOCKADDR*)&localAddress, sizeof(localAddress));
     if ( iResult == SOCKET_ERROR ) {
-        printf("bind failed with error: %d\n",WSAGetLastError());
+        printf("bind failed with error: %d\n",errno);
         return -1;
     }
     //printf("UDP server up\n");
@@ -63,7 +63,7 @@ int configServer_TCP(SOCKET *t, const u_short port) {
     
     *t = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if ( *t == INVALID_SOCKET ) {
-        printf("Socket failed with error: %d\n",WSAGetLastError());
+        printf("Socket failed with error: %d\n",errno);
         return -1;
     }
     struct sockaddr_in localAddress;
@@ -73,11 +73,11 @@ int configServer_TCP(SOCKET *t, const u_short port) {
 
     iResult = bind(*t, (SOCKADDR*)&localAddress, sizeof(localAddress));
     if ( iResult == SOCKET_ERROR ) {
-        printf("bind failed with error: %d\n",WSAGetLastError());
+        printf("bind failed with error: %d\n",errno);
         return -1;
     }
     if ( listen(*t, SOMAXCONN ) == SOCKET_ERROR ) {
-        printf("listen failed with error: %d\n",WSAGetLastError());
+        printf("listen failed with error: %d\n",errno);
         closesocket(*t);
         return -1;
     }
@@ -252,7 +252,7 @@ int configClientIP_TCP(SOCKET *t, const char* ip,const u_short port)
     
     *t = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if ( *t == INVALID_SOCKET ) {
-        printf("Socket failed with error: %d\n",WSAGetLastError());
+        printf("Socket failed with error: %d\n",errno);
         return -1;
     }
     
@@ -264,11 +264,11 @@ int configClientIP_TCP(SOCKET *t, const char* ip,const u_short port)
     iResult = connect(*t, (SOCKADDR *) & remoteAddress, sizeof (remoteAddress));
     if(iResult == SOCKET_ERROR)
     {
-        printf("connect failed with error: %d\n",WSAGetLastError());
+        printf("connect failed with error: %d\n",errno);
         iResult = closesocket(*t);
         if(iResult == SOCKET_ERROR)
         {
-            printf("closesocket failed with error: %d\n",WSAGetLastError());
+            printf("closesocket failed with error: %d\n",errno);
         }
         return -1;
     }

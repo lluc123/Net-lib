@@ -147,7 +147,7 @@ int applicationLoop_UDP(SOCKET *s)
             r = recvfrom(*s,buffer,1024,0,(SOCKADDR*) &from,&fromlen);
             if(r == SOCKET_ERROR)
             {
-                printf("recvfrom() failed with error code : %d\n" , WSAGetLastError());
+                printf("recvfrom() failed with error code : %d\n" , errno);
                 closesocket(client);
                 return -1;
             }
@@ -160,7 +160,7 @@ int applicationLoop_UDP(SOCKET *s)
             r = recvfrom(client,buffer,1024,0,(SOCKADDR*) &from,&fromlen);
             if(r == SOCKET_ERROR)
             {
-                printf("recvfrom() failed with error code : %d\n" , WSAGetLastError());
+                printf("recvfrom() failed with error code : %d\n" , errno);
                 closesocket(client);
                 return -1;
             }
@@ -214,7 +214,7 @@ int applicationLoop_TCP(SOCKET *s) {
         if (isaccept(s)) {
             c = accept(*s,0,0);
             if(c == INVALID_SOCKET) {
-                printf("accept failed: %d\n",WSAGetLastError());
+                printf("accept failed: %d\n",errno);
             }
             else
             {
@@ -251,7 +251,7 @@ int applicationLoop_TCP(SOCKET *s) {
                 }
                 else if(r == SOCKET_ERROR)
                 {
-                    printf("recv failed with error: %d\n",WSAGetLastError());
+                    printf("recv failed with error: %d\n",errno);
                     exiting_bool = 1;
                 }
                 else
@@ -328,7 +328,7 @@ int getUpnpInfo(void** ins)
             r = recvfrom(client,buffer,1024,0,(SOCKADDR*) &from,&fromlen);
             if(r == SOCKET_ERROR)
             {
-                printf("recvfrom() failed with error code : %d\n" , WSAGetLastError());
+                printf("recvfrom() failed with error code : %d\n" , errno);
                 closesocket(client);
                 return -1;
             }

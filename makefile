@@ -1,12 +1,13 @@
 CC=gcc
-EXEC=netapp.exe
+EXEC=netapp
 cOption=-w
-libn=-lWs2_32
+# libn=-lWs2_32
+libn=
 
 all : $(EXEC)
 
-netapp.exe: netapp.o netcommon.o parser.o
-	$(CC) $(cOption) -static-libgcc -o netapp.exe netapp.o netcommon.o parser.o
+netapp: netapp.o netcommon.o parser.o
+	$(CC) $(cOption) -o netapp netapp.o netcommon.o parser.o
 
 netapp.o: netapp.c
 	$(CC) $(cOption) -c netapp.c -o netapp.o

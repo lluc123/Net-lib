@@ -5,6 +5,7 @@
 #include <string.h>
 
 #ifdef _WIN32	
+#define errno WSAGetLastError()
 #include <winsock2.h>
 #define initNet() \
 do {\
@@ -27,7 +28,9 @@ iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <errno.h>
 #define initNet()
+
 #define endNet()
 typedef int SOCKET;
 typedef struct sockaddr_in SOCKADDR_IN;
@@ -36,7 +39,6 @@ typedef struct in_addr IN_ADDR;
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #define closesocket close
-#define WSAGetLastError() errno()
 #else
 #error not defined for this platform
 #endif

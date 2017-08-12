@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <string.h>
 #include <time.h>
-
+#define M_TCP
 #ifdef _WIN32
 #include <Windows.h>
 #elif linux
@@ -208,7 +208,7 @@ int applicationLoop_TCP(SOCKET *s) {
     int r = 0;
     char buffer[1024] = {'\0'};
     
-    while(exiting_bool != 1)
+    while(exiting_bool == 0)
     {
         c = INVALID_SOCKET;
         if (isaccept(s)) {
@@ -320,7 +320,7 @@ int getUpnpInfo(void** ins)
     
     r = sendto(client,cUPNP_req_WANIP,strlen(cUPNP_req_WANIP)+1,0,&to,fromlen);
     lastr = clock();
-    while(exiting_bool != 1)
+    while(exiting_bool == 0)
     {
         if(isaccept(&client))
         {

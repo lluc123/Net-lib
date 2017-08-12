@@ -8,6 +8,10 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#elif linux
+#define Sleep(x) sleep(x)
+#define Sleep(x) sleep(x)
+#define ZeroMemory(x,y) memset(x,'\0',y)
 #endif
 
 #include "netcommon.h"
@@ -101,7 +105,8 @@ int main (int argc, char **argv)
     }
     #endif
     printf("Program Stopped");
-    WSACleanup();
+    endNet();
+    //WSACleanup();
     return retcode;
 }
 //===================

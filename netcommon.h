@@ -15,12 +15,20 @@ iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
         return 1;\
     }\
 }while(0)
+#define endNet() \
+	do { \
+		WSACleanup(); \
+	} while(0)
+
+
+
 #elif linux
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #define initNet()
+#define endNet()
 typedef int SOCKET;
 typedef struct sockaddr_in SOCKADDR_IN;
 typedef struct sockaddr SOCKADDR;
@@ -28,6 +36,7 @@ typedef struct in_addr IN_ADDR;
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #define closesocket close
+#define WSAGetLastError() errno()
 #else
 #error not defined for this platform
 #endif

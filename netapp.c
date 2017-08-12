@@ -44,7 +44,7 @@ struct http_response {
 //Global Variable
 //====================
 
-static volatile bool exiting_bool = 0;
+static volatile int exiting_bool = 0;
 const char cUPNP_req[] =     {'M','-','S','E','A','R','C','H',' ','*',' ','H','T','T','P','/','1','.','1','\r','\n',
                             'M','X',':',' ','1','\r','\n',
                             'S','T',':',' ','s','s','d','p',':','a','l','l','\r','\n',

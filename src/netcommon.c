@@ -5,7 +5,8 @@ int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
     int iResult = 0;
     int BroadcastOn = 1;
     *t = socket(AF_INET, SOCK_DGRAM, 0);
-    if ( *t == INVALID_SOCKET ) {
+    if ( *t == INVALID_SOCKET ) 
+    {
         printf("Socket failed with error: %d\n",errno);
         return -1;
     }
@@ -27,7 +28,8 @@ int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
     localAddress.sin_addr.s_addr = INADDR_ANY;
 
     iResult = bind(*t, (SOCKADDR*)&localAddress, sizeof(localAddress));
-    if ( iResult == SOCKET_ERROR ) {
+    if ( iResult == SOCKET_ERROR ) 
+    {
         printf("bind failed with error: %d\n",errno);
         return -1;
     }
@@ -40,7 +42,8 @@ int configServer_UDP(SOCKET *t, const u_short port)
     int iResult = 0;
     
     *t = socket(AF_INET, SOCK_DGRAM, 0);
-    if ( *t == INVALID_SOCKET ) {
+    if ( *t == INVALID_SOCKET ) 
+    {
         printf("Socket failed with error: %d\n",errno);
         return -1;
     }
@@ -50,7 +53,8 @@ int configServer_UDP(SOCKET *t, const u_short port)
     localAddress.sin_addr.s_addr = INADDR_ANY;
 
     iResult = bind(*t, (SOCKADDR*)&localAddress, sizeof(localAddress));
-    if ( iResult == SOCKET_ERROR ) {
+    if ( iResult == SOCKET_ERROR ) 
+    {
         printf("bind failed with error: %d\n",errno);
         return -1;
     }
@@ -150,32 +154,33 @@ int urlParse(const char* url, char** page, char** host)
 
 
 
-int urlParse2Index(const char* url, int* page, int* host)
+char* urlParse2Index(char* url)
 {
     //bool inPage = 1;
     size_t len = strlen(url)+1;
     
-    int hostIndex = 0;
-    int pageIndex = 0;
-    
-    
     int i = 0;
+
+    //Magick number test
+    //
+    uint32_t magick = 0x70747468; //http
+    uint32_t magick2 = 0x2f2f3a73; //s://
+    uint32_t magick3 = 0x2f2f3a70; //p://
     
-    if(len > 7 && url[i+0] == 'h' && url[i+1] == 't' && url[i+2] == 't' && url[i+3] == 'p' && url[i+4] == ':' && url[i+5] == '/' && url[i+6] == '/')
-        i=i+7;
-    if(len > 8 && url[i+0] == 'h' && url[i+1] == 't' && url[i+2] == 't' && url[i+3] == 'p' && url[i+4] == 's' && url[i+5] == ':' && url[i+6] == '/' && url[i+7] == '/')
-        i=i+8;
-    *host = i;
-    *page = -1;
-    for(;url[i] != '\0' && *page < 1;i++)
+    if(len > 7 && *(uint32_t*)url == magick && *(uint32_t*)(url+3) == magick3)
+        i=7;
+    else if(len > 8 && *(uint32_t*)url == magick && *(uint32_t*)(url+4) == magick2)
+        i=8;
+    len--;
+    for(;i<len;i++)
     {
         if(url[i] == '/')
         {
-            //*page[pageIndex] = url[i];
-            //pageIndex++;
+		url[i] = '\0';
+		return url+i+1;
         }
     }
-    return 0;
+    return len;
 }
 
 int getPageFromUrl(char* url, char** out)
@@ -183,13 +188,10 @@ int getPageFromUrl(char* url, char** out)
     int retcode = 0;
     int iResult = 0;
     
-    char *page =0;
-    char *host =0;
-    
     char responseHeader[2048] = {'\0'};
     int responseHeaderLen = 0;
     
-    urlParse(url,&page,&host);
+    char* page = urlParse2Index(url);
     
     struct addrinfo *result = NULL;
     struct addrinfo *ptr = NULL;
@@ -211,9 +213,11 @@ int getPageFromUrl(char* url, char** out)
     if(c == SOCKET_ERROR || iResult == -1)
         return -1;
     
+
+    //TODO: ADD lenght check
     char request[1024] = {'\0'};
-    strcat(request,"GET ");strncat(request,page,strlen(page));strcat(request," HTTP/1.0\r\n");
-    strcat(request,"Host: ");strcat(request,host);strcat(request,"\r\n");
+    strcat(request,"GET ");strcat(request,page);strcat(request," HTTP/1.0\r\n");
+    strcat(request,"Host: ");strcat(request,url);strcat(request,"\r\n");
     strcat(request,"\r\n");
     
     send(c,request,strlen(request),0);

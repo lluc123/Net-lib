@@ -9,14 +9,16 @@ typedef struct {
     char *pvalue;
 } http_param, *phttp_param;
 
-typedef struct {
-	node_list_param * next;
+typedef struct node_list_param node_list_param, *pnode_list_param;
+
+struct node_list_param {
+	pnode_list_param next;
 	http_param value;
-} node_list_param, *pnode_list_param;
+};
 
 typedef struct {
-	node_list_param * next;
-	node_list_param * last;
+	pnode_list_param next;
+	pnode_list_param last;
 	size_t len;
 } list_param;
 

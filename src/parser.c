@@ -156,3 +156,45 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
     //free(p);
     return p;
 }
+
+
+list_param list_param_init()
+{
+	list_param ret = { .last = 0, .next = 0, .len = 0 };
+	return ret;
+}
+pnode_list_param list_param_addlast(list_param * obj, http_param val)
+{
+	pnode_list_param ret;
+	ret = malloc(sizeof(node_list_param));
+	if(ret != NULL)
+	{
+		ret->next = 0;
+		ret->value = val;
+		if(obj->last == 0 || obj->next == 0)
+		{
+			obj->next = ret;
+		}
+		else
+		{
+			obj->last->next = ret;
+		}
+		obj->last = ret;
+		(obj->len)++;
+	}
+	return ret;
+
+}
+pnode_list_param list_param_at(list_param * obj, int index)
+{
+	if(obj->len < index)
+		return 0;
+	pnode_list_param ret = obj->next;
+	for(int i = 0; i < index; i++)
+		ret = ret->next;
+	return ret;
+}
+int list_param_free(list_param * obj)
+{
+
+}

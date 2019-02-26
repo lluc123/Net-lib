@@ -12,7 +12,7 @@ typedef struct {
 typedef struct {
 	node_list_param * next;
 	http_param value;
-} node_list_param;
+} node_list_param, *pnode_list_param;
 
 typedef struct {
 	node_list_param * next;
@@ -30,7 +30,7 @@ int clear_param(phttp_param p);
 phttp_param parser(char *buffer, size_t s, char separator, char setter);
 
 list_param list_param_init();
-int list_param_addlast(list_param * obj, http_param val);
-int list_param_at(list_param * obj, int index);
+pnode_list_param list_param_addlast(list_param * obj, http_param val);
+pnode_list_param list_param_at(list_param * obj, int index);
 int list_param_free(list_param * obj);
 #endif

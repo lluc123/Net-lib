@@ -4,14 +4,14 @@ const struct http_param l_error_param = {0,0};
 
 int init_param(char * key, char * value, struct http_param* p)
 {
-    size_t k = strlen(key)+1;
-    size_t v = strlen(value)+1;
-    p->pname = malloc(k);
-    p->pvalue = malloc(v);
-    memset(p->pname,'\0',k);
-    memset(p->pvalue,'\0',v);
-    strcpy(p->pname,key);
-    strcpy(p->pvalue,value);
+    size_t k = strlen(key);
+    size_t v = strlen(value);
+    p->pname = malloc(k+1);
+    p->pvalue = malloc(v+1);
+    p->pname[k] = '\0';
+    p->pvalue[v] = '\0';
+    strncpy(p->pname,key,k);
+    strncpy(p->pvalue,value,v);
     return 0;
 }
 int destroy_param(struct http_param p)
@@ -67,10 +67,10 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
     
     char key[125] = {'\0'};
     char value[125] = {'\0'};
-    struct http_param* p;
+    http_param p;
     
     int poslinestart = 0;
-    int poscolon = 0;
+    int poscolon = 0;	//position of the "="
     bool firstcharmet = 0;
     int k = 0;          //size of malloc for param
     int j = 0;          //src index
@@ -78,20 +78,14 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
     int i = 0;          //Buffer index (real reader)
     bool linec = 0;     //Boolean if contain setter
 
-    p = malloc(sizeof(struct http_param)*(k+1));
-    if(p == NULL)
+    while(i < s)	//We read the whole buffer
     {
-        return &l_error_param;
-    }
-    
-    while(i < s)
-    {
-        if(buffer[i] == setter && linec != 1)
+        if(buffer[i] == setter && linec != 1)	//We look for the first "="
         {
             linec = 1;
             poscolon = i;
         }
-        else if(buffer[i] == separator)
+        else if(buffer[i] == separator)		// if we have the whole statement (in this case a line)
         {
             if(i > 0 && buffer[i-1] == '\r')
                 i--;
@@ -139,9 +133,8 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
                         
                         //KEY and Value are SET !!! Initialise
                         
-                        init_param(key, value,p+k);
+                        init_param(key, value,&p);
                         k++;
-                        p = realloc(p,sizeof(struct http_param)*(k+1));
                     }
                 }
             }
@@ -152,7 +145,6 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
         }
         i++;
     }
-    p[k] = l_error_param;
     //free(p);
     return p;
 }
@@ -185,6 +177,7 @@ pnode_list_param list_param_addlast(list_param * obj, http_param val)
 	return ret;
 
 }
+
 pnode_list_param list_param_at(list_param * obj, int index)
 {
 	if(obj->len < index)
@@ -194,7 +187,16 @@ pnode_list_param list_param_at(list_param * obj, int index)
 		ret = ret->next;
 	return ret;
 }
+
 int list_param_free(list_param * obj)
 {
-
+	pnode_list_param i = obj->next, tmp;
+	for(;i != 0;)
+	{
+		tmp = i;
+		destroy_param(tmp->value);
+		i = i->next;
+		free(tmp);
+	}
+	return 0;
 }

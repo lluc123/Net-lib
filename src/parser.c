@@ -1,8 +1,9 @@
+#include <stdlib.h>
 #include "parser.h"
 
-const struct http_param l_error_param = {0,0};
+//const struct http_param l_error_param = {0,0};
 
-int init_param(char * key, char * value, struct http_param* p)
+int init_param(char * key, char * value, phttp_param p)
 {
     size_t k = strlen(key);
     size_t v = strlen(value);
@@ -14,47 +15,32 @@ int init_param(char * key, char * value, struct http_param* p)
     strncpy(p->pvalue,value,v);
     return 0;
 }
-int destroy_param(struct http_param p)
+int destroy_param(phttp_param p)
 {
-    free(p.pname);
-    free(p.pvalue);
+    free(p->pname);
+    free(p->pvalue);
     return 0;
 }
 
-bool paramIsNotNull(const struct http_param p)
-{
-    return !paramComp(p,l_error_param);
-}
 
-bool paramComp(const struct http_param p,const struct http_param d)
+bool paramComp(const http_param p,const http_param d)
 {
     return (p.pname == d.pname) && (p.pvalue == d.pvalue);
 }
 
-int clear_param(struct http_param* p)
+char* http_paramGetValue(phttp_param p,char *key)
 {
-    int i =0;
-    
-    while(paramIsNotNull(*(p+i)))
-    {
-        destroy_param(*(p+i));
-        i++;
-    }
-    return 0;
-}
-
-char* http_paramGetValue(struct http_param* p,char *key)
-{
+	//TODO Need to upgrade this function
     int i = 0;
-    while(paramIsNotNull(*(p+i)))
+    /*while(paramIsNotNull(*(p+i)))
     {
         if(strcmp(p->pname,key) == 0)
             return p->pvalue;
-    }
+    }*/
     return 0;
 }
 
-struct http_param* parser(char *buffer, size_t s, char separator, char setter)
+list_param parser(char *buffer, size_t s, char separator, char setter)
 {
     //Checking if the request have a good termination
     /*
@@ -67,12 +53,12 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
     
     char key[125] = {'\0'};
     char value[125] = {'\0'};
+    list_param ret = list_param_init();
     http_param p;
     
     int poslinestart = 0;
     int poscolon = 0;	//position of the "="
     bool firstcharmet = 0;
-    int k = 0;          //size of malloc for param
     int j = 0;          //src index
     int l = 0;          //Dest index
     int i = 0;          //Buffer index (real reader)
@@ -133,8 +119,8 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
                         
                         //KEY and Value are SET !!! Initialise
                         
-                        init_param(key, value,&p);
-                        k++;
+                        init_param(key, value,&p);	//TODO Add malloc error check
+			list_param_addlast(&ret,p);
                     }
                 }
             }
@@ -145,8 +131,7 @@ struct http_param* parser(char *buffer, size_t s, char separator, char setter)
         }
         i++;
     }
-    //free(p);
-    return p;
+    return ret;
 }
 
 
@@ -194,9 +179,12 @@ int list_param_free(list_param * obj)
 	for(;i != 0;)
 	{
 		tmp = i;
-		destroy_param(tmp->value);
+		destroy_param(&(tmp->value));
 		i = i->next;
 		free(tmp);
 	}
+	obj->next = 0;
+	obj->last = 0;
+	obj->len = 0;
 	return 0;
 }

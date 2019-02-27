@@ -10,7 +10,6 @@
 #include <Windows.h>
 #elif linux
 #define Sleep(x) sleep(x)
-#define Sleep(x) sleep(x)
 #define ZeroMemory(x,y) memset(x,'\0',y)
 #endif
 
@@ -98,9 +97,9 @@ int main (int argc, char **argv)
     int retcode = configServer_UDP_Broadcast(&s,1900);
     if (retcode == 0) // If the server start was a success
     {
-        void* t = NULL;
+	list_param t;
         getUpnpInfo(&t);
-        printUpnpInfo((struct http_param**)t);
+        printUpnpInfo(t);
         clearUpnpInfo(&t);
     }
     #endif
@@ -299,7 +298,7 @@ struct sock_list* addSocket(struct sock_list* sl, SOCKET s) {
 
 int getUpnpInfo(void** ins)
 {
-    struct http_param** in = *ins;
+    pnode_list_param in;
     SOCKET client = INVALID_SOCKET;
     int r = 0; //return code
     char buffer[1024] = {'\0'};
@@ -337,7 +336,7 @@ int getUpnpInfo(void** ins)
             lastr=clock();
             //fprintf(stdout,"%s\n",buffer);
             //fwrite(buffer,sizeof(char),r,log);
-            struct http_param* t = parser(buffer,r, '\n',':');
+            list_param t = parser(buffer,r, '\n',':');
             
             /*
             while(paramIsNotNull(*(t+i)))

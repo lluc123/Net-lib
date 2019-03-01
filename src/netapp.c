@@ -72,7 +72,7 @@ struct sock_list* removeSocket(struct sock_list* sl);
 void sighandler(int signum);
 int getUpnpInfo(void** ins);
 int clearUpnpInfo(void** _in);
-void printUpnpInfo(struct http_param** in);
+void printUpnpInfo(list_param* in);
 
 //====================
 //       MAIN
@@ -338,20 +338,7 @@ int getUpnpInfo(void** ins)
             //fwrite(buffer,sizeof(char),r,log);
             list_param t = parser(buffer,r, '\n',':');
             
-            /*
-            while(paramIsNotNull(*(t+i)))
-            {
-                //printf("%s:%s\n",t[i].pname,t[i].pvalue);
-                i++;
-            }
-            */
-            //printf("\n\n");
-            in = *ins = realloc(in,sizeof(void*)*(i+1));
-            *(in+i) = t;
-            i++;
-            
-            //clear_param(t);
-            //free(t);
+	    list_param_free(&t);
         }
         else{
             if(clock()-lastr>4000)
@@ -362,25 +349,17 @@ int getUpnpInfo(void** ins)
         }
         
     }
-    in = *ins = realloc(in,sizeof(void*)*(i+1));
-    *(in+i) = NULL;
     closesocket(client);
     return 0;
 }
 
-void printUpnpInfo(struct http_param** in)
+void printUpnpInfo(list_param* in)
 {
     int i = 0;
-    while(in[i] != NULL)
+    pnode_list_param p = in->next;
+    while(p != 0)
     {
-        int j =0;
-        while(paramIsNotNull(in[i][j]))
-        {
-            printf("%s:%s\n",in[i][j].pname,in[i][j].pvalue);
-            j++;
-        }
-        i++;
-        printf("\n\n");
+        printf("%s:%s\n",p->value.pname,p->value.pvalue);
     }
 }
 

@@ -40,7 +40,7 @@ char* http_paramGetValue(phttp_param p,char *key)
     return 0;
 }
 
-list_param parser(char *buffer, size_t s, char separator, char setter)
+list_param parser(char *buffer, size_t s)
 {
     //Checking if the request have a good termination
     /*
@@ -50,6 +50,9 @@ list_param parser(char *buffer, size_t s, char separator, char setter)
         return -1;
     }
     */
+
+	const char setter = '=';
+	const char separator = '\n';
     
     char key[125] = {'\0'};
     char value[125] = {'\0'};

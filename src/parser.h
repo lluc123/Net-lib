@@ -27,7 +27,7 @@ typedef struct {
 bool paramComp(const http_param p,const http_param d);
 int init_param(char * key, char * value, phttp_param p);
 int destroy_param(phttp_param p);
-list_param parser(char *buffer, size_t s, char separator, char setter);
+list_param parser(char *buffer, size_t s);
 
 list_param list_param_init();
 pnode_list_param list_param_addlast(list_param * obj, http_param val);

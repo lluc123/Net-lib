@@ -169,16 +169,19 @@ int applicationLoop_UDP(SOCKET *s)
             lastr=clock();
             fprintf(stdout,"%s\n",buffer);
             fwrite(buffer,sizeof(char),r,log);
-            struct http_param* t = parser(buffer,r, '\n',':');
+            list_param t = parser(buffer,r);
             int i =0;
-            while(paramIsNotNull(*(t+i)))
+	    
+            while(i < t.len)
             {
-                printf("%s:%s\n",t[i].pname,t[i].pvalue);
+		pnode_list_param val = list_param_at(&t, i);
+		if(val != 0)
+                	printf("%s:%s\n",(val->value).pname,(val->value).pvalue);
                 i++;
             }
+	    
             printf("\n\n");
-            clear_param(t);
-            free(t);
+            list_param_free(&t);
         }
         else{
             Sleep(10);
@@ -336,7 +339,7 @@ int getUpnpInfo(void** ins)
             lastr=clock();
             //fprintf(stdout,"%s\n",buffer);
             //fwrite(buffer,sizeof(char),r,log);
-            list_param t = parser(buffer,r, '\n',':');
+            list_param t = parser(buffer,r);
             
 	    list_param_free(&t);
         }
@@ -363,6 +366,7 @@ void printUpnpInfo(list_param* in)
     }
 }
 
+/*
 int clearUpnpInfo(void** _in)
 {
     void** in = *_in;
@@ -376,7 +380,7 @@ int clearUpnpInfo(void** _in)
             }
     free(in);
     *_in=in;
-}
+}*/
 
 /**
  * Delete sock_list pass in parameter

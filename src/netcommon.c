@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include "netcommon.h"
+#include "parser.h"
 
 int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
 {
@@ -198,7 +200,8 @@ int getPageFromUrl(char* url, char** out)
     SOCKET c = SOCKET_ERROR;
     struct sockaddr_in  *sockaddr_ipv4;
     
-    getaddrinfo(host,0,0,&result);
+    //TODO: This need to be repaired
+    //getaddrinfo(url,0,0,&result);
     
     for(ptr =result;ptr != NULL;ptr=ptr->ai_next)
     {
@@ -224,13 +227,12 @@ int getPageFromUrl(char* url, char** out)
     
     responseHeaderLen = recv(c,responseHeader,2047,0);  //RESPONSE HEADER HTTP
     
-    struct http_param* respParam = parser(responseHeader,responseHeaderLen+1,'\n',':');
-    char *temp = http_paramGetValue(respParam,"Content-Length");
+    list_param respParam = parser(responseHeader,responseHeaderLen+1);
+    char *temp = http_paramGetValue(&respParam,"Content-Length");
     
-    clear_param(respParam);
-    free(respParam);
+    list_param_free(&respParam);
     free(page);
-    free(host);
+    //free(host);
     
     if(temp == 0)
     {

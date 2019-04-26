@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <string.h>
 #include <time.h>
-#define M_TCP
+//#define M_TCP
 #ifdef _WIN32
 #include <Windows.h>
 #elif linux
@@ -70,7 +70,7 @@ int applicationLoop_TCP(SOCKET *s);
 struct sock_list* addSocket(struct sock_list* sl, SOCKET s);
 struct sock_list* removeSocket(struct sock_list* sl);
 void sighandler(int signum);
-int getUpnpInfo(void** ins);
+int getUpnpInfo();
 int clearUpnpInfo(void** _in);
 void printUpnpInfo(list_param* in);
 
@@ -97,10 +97,7 @@ int main (int argc, char **argv)
     int retcode = configServer_UDP_Broadcast(&s,1900);
     if (retcode == 0) // If the server start was a success
     {
-	list_param t;
-        getUpnpInfo(&t);
-        printUpnpInfo(t);
-        clearUpnpInfo(&t);
+        getUpnpInfo();
     }
     #endif
     printf("Program Stopped");
@@ -299,9 +296,8 @@ struct sock_list* addSocket(struct sock_list* sl, SOCKET s) {
 
 }
 
-int getUpnpInfo(void** ins)
+int getUpnpInfo()
 {
-    pnode_list_param in;
     SOCKET client = INVALID_SOCKET;
     int r = 0; //return code
     char buffer[1024] = {'\0'};
@@ -335,12 +331,12 @@ int getUpnpInfo(void** ins)
                 return -1;
             }
             
-            //fprintf(stdout,"Received response packet from %s:%d sizeof:%d\n", inet_ntoa(from.sin_addr), ntohs(from.sin_port),r);
+            fprintf(stdout,"Received response packet from %s:%d sizeof:%d\n", inet_ntoa(from.sin_addr), ntohs(from.sin_port),r);
             lastr=clock();
             //fprintf(stdout,"%s\n",buffer);
             //fwrite(buffer,sizeof(char),r,log);
             list_param t = parser(buffer,r);
-            
+            printUpnpInfo(&t);
 	    list_param_free(&t);
         }
         else{
@@ -359,9 +355,9 @@ int getUpnpInfo(void** ins)
 void printUpnpInfo(list_param* in)
 {
     int i = 0;
-    pnode_list_param p = in->next;
-    while(p != 0)
+    while(i < in->len)
     {
+    	pnode_list_param p = list_param_at(in, i);
         printf("%s:%s\n",p->value.pname,p->value.pvalue);
     }
 }

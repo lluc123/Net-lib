@@ -120,6 +120,7 @@ bool isrecv(SOCKET* t) {
 int urlParse(const char* url, char** page, char** host)
 {
     //bool inPage = 1;
+    int state = 0;
     size_t len = strlen(url)+1;
     *page = malloc(len);
     *host = malloc(len);
@@ -129,25 +130,84 @@ int urlParse(const char* url, char** page, char** host)
     
     memset(*page,0,len);
     memset(*host,0,len);
-    
     int i = 0;
-    
-    if(len > 7 && url[i+0] == 'h' && url[i+1] == 't' && url[i+2] == 't' && url[i+3] == 'p' && url[i+4] == ':' && url[i+5] == '/' && url[i+6] == '/')
-        i=i+7;
-    if(len > 8 && url[i+0] == 'h' && url[i+1] == 't' && url[i+2] == 't' && url[i+3] == 'p' && url[i+4] == 's' && url[i+5] == ':' && url[i+6] == '/' && url[i+7] == '/')
-        i=i+8;
-    for(;url[i] != '\0';i++)
+    while(url[i] != '\0')
     {
-        if(pageIndex > 0 || url[i] == '/')
-        {
-            *page[pageIndex] = url[i];
-            pageIndex++;
-        }
-        else
-        {
-            *host[hostIndex] = url[i];
+		fprintf(stdout, "Current State : %d\n Current char : %c\n\n",state, url[i]);
+		int nextState = -1;
+		switch(state)
+		{
+			case 0:
+			if(url[i] == 'h')
+			{
+				nextState = 1;
+				--i;
+			}
+			break;
+			case 1:
+			if(url[i+1] == 't')
+				nextState = 2;
+			break;
+			case 2:
+			if(url[i+1] == 't')
+				nextState = 3;
+			break;
+			case 3:
+			if(url[i+1] == 'p')
+				nextState = 4;
+			break;
+			case 4:
+			if(url[i+1] == ':')
+				nextState = 6;
+			else if(url[i+1] == 's')
+				nextState = 5;
+			break;
+			case 5:
+			if(url[i+1] == ':')
+				nextState = 6;
+			break;
+			case 6:
+			if(url[i+1] == '/')
+				nextState = 7;
+			break;
+			case 7:
+			if(url[i+1] == '/')
+				nextState = 11;
+			break;
+			case 11:
+			if(url[i+1] >= 'a' && url[i+1] <= 'z')
+				nextState = 9;
+			break;
+			case 9:
+			//*host[hostIndex] = url[i];
             hostIndex++;
-        }
+            if(url[i+1] == '/')
+				nextState = 8;
+			else if((url[i+1] >= 'a' && url[i+1] <= 'z') || url[i+1] == '.')
+				nextState = 9;
+			break;
+			case 8:
+			//*page[pageIndex] = url[i];
+            pageIndex++;
+            if((url[i+1] >= 'a' && url[i+1] <= 'z') || url[i+1] == '.' || url[i+1] == '/' || url[i+1] == '=' || url[i+1] == '?' || (url[i+1] >= 'A' && url[i+1] <= 'Z') || url[i+1] == '&')
+				nextState = 8;
+			break;
+		}
+		if(nextState < 0)
+		{
+			if(state != 8 && state != 9)
+			{
+				fprintf(stdout, "Error while parsing the URL (state : %d) : %s\n",state, url);
+				fprintf(stdout, "The next char was %c\n",url[i+1]);
+			}
+			else
+			{
+				fprintf(stdout, "URL parse OK!\n");
+			}
+			return 1;
+		}
+		state = nextState;
+		++i;
     }
     if(pageIndex == 0)
         strcpy(*page,"/");
@@ -155,7 +215,7 @@ int urlParse(const char* url, char** page, char** host)
 }
 
 
-
+/*
 char* urlParse2Index(char* url)
 {
     //bool inPage = 1;
@@ -184,7 +244,9 @@ char* urlParse2Index(char* url)
     }
     return len;
 }
+*/
 
+/*
 int getPageFromUrl(char* url, char** out)
 {
     int retcode = 0;
@@ -251,6 +313,7 @@ int getPageFromUrl(char* url, char** out)
         
     return retcode;
 }
+* */
 
 int configClientIP_TCP(SOCKET *t, const char* ip,const u_short port)
 {

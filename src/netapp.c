@@ -73,11 +73,21 @@ void sighandler(int signum);
 int getUpnpInfo();
 int clearUpnpInfo(void** _in);
 void printUpnpInfo(list_param* in);
+int test();
 
 //====================
 //       MAIN
 //====================
 int main (int argc, char **argv)
+{
+	char* va = "https://www.youtube.com/watch?v=SNTltkuRiqw";
+	char* t = 0;
+	char* a = 0;
+	urlParse(va,&t, &a);
+	
+	return 0;
+}
+int test()
 {
     int iResult = 0;
     signal(SIGINT, sighandler); //Gestion du signal CTRL+C
@@ -316,7 +326,8 @@ int getUpnpInfo()
     to.sin_port = htons(1900);
     to.sin_addr.s_addr = INADDR_BROADCAST;
     
-    r = sendto(client,cUPNP_req_WANIP,strlen(cUPNP_req_WANIP)+1,0,&to,fromlen);
+    r = sendto(client,cUPNP_req,strlen(cUPNP_req)+1,0,&to,fromlen);
+    fprintf(stdout,"Sending the message\n");
     lastr = clock();
     while(exiting_bool == 0)
     {
@@ -337,10 +348,10 @@ int getUpnpInfo()
             //fwrite(buffer,sizeof(char),r,log);
             list_param t = parser(buffer,r);
             printUpnpInfo(&t);
-	    list_param_free(&t);
+			list_param_free(&t);
         }
         else{
-            if(clock()-lastr>4000)
+            if(clock()-lastr>15000)
             {
                 exiting_bool=1;
             }

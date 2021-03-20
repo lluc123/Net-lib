@@ -6,11 +6,12 @@
 
 #ifdef _WIN32	
 #define errno WSAGetLastError()
-#include <winsock2.h>
+#define WIN32_LEAN_AND_MEAN
+#include <WinSock2.h>
 #define initNet() \
 do {\
 WSADATA wsaData;\
-iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
+int iResult = WSAStartup(MAKEWORD(2,2),&wsaData);\
     if(iResult != 0) {\
         printf("fail\n");\
         return 1;\

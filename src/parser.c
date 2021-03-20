@@ -51,7 +51,7 @@ list_param parser(char *buffer, size_t s)
     }
     */
 
-	const char setter = '=';
+	const char setter = ':';
 	const char separator = '\n';
     
     char key[125] = {'\0'};

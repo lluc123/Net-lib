@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "netcommon.h"
 #include "parser.h"
+#include <stdlib.h>
 
 int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
 {
@@ -27,7 +28,7 @@ int configServer_UDP_Broadcast(SOCKET *t, const u_short port)
     struct sockaddr_in localAddress;
     localAddress.sin_family = AF_INET;
     localAddress.sin_port = htons(port);
-    localAddress.sin_addr.s_addr = INADDR_ANY;
+    localAddress.sin_addr.s_addr = inet_addr("192.168.2.49");;
 
     iResult = bind(*t, (SOCKADDR*)&localAddress, sizeof(localAddress));
     if ( iResult == SOCKET_ERROR ) 
@@ -121,19 +122,19 @@ int urlParse(const char* url, char** page, char** host)
 {
     //bool inPage = 1;
     int state = 0;
-    size_t len = strlen(url)+1;
-    *page = malloc(len);
-    *host = malloc(len);
+    size_t len = strlen(url);
+    *(page) = malloc(len+1);
+    *(host) = malloc(len+1);
     
     int hostIndex = 0;
     int pageIndex = 0;
     
-    memset(*page,0,len);
-    memset(*host,0,len);
+    memset((*page),'\0',len);
+    memset((*host),'\0',len); 
     int i = 0;
     while(url[i] != '\0')
     {
-		fprintf(stdout, "Current State : %d\n Current char : %c\n\n",state, url[i]);
+		//fprintf(stdout, "Current State : %d\n Current char : %c\n\n",state, url[i]);
 		int nextState = -1;
 		switch(state)
 		{
@@ -179,17 +180,17 @@ int urlParse(const char* url, char** page, char** host)
 				nextState = 9;
 			break;
 			case 9:
-			//*host[hostIndex] = url[i];
+			(*host)[hostIndex] = url[i];
             hostIndex++;
             if(url[i+1] == '/')
 				nextState = 8;
-			else if((url[i+1] >= 'a' && url[i+1] <= 'z') || url[i+1] == '.')
+			else if((url[i+1] >= 'a' && url[i+1] <= 'z') || url[i+1] == '.' || (url[i + 1] >= '0' && url[i + 1] <= '9'))
 				nextState = 9;
 			break;
 			case 8:
-			//*page[pageIndex] = url[i];
+			(*page)[pageIndex] = url[i];
             pageIndex++;
-            if((url[i+1] >= 'a' && url[i+1] <= 'z') || url[i+1] == '.' || url[i+1] == '/' || url[i+1] == '=' || url[i+1] == '?' || (url[i+1] >= 'A' && url[i+1] <= 'Z') || url[i+1] == '&')
+            if((url[i+1] >= 'a' && url[i+1] <= 'z') || url[i+1] == '.' || url[i+1] == '/' || url[i+1] == '=' || url[i+1] == '?' || (url[i+1] >= 'A' && url[i+1] <= 'Z') || url[i+1] == '&' || url[i + 1] == '-' || (url[i + 1] >= '0' && url[i + 1] <= '9'))
 				nextState = 8;
 			break;
 		}
@@ -202,7 +203,7 @@ int urlParse(const char* url, char** page, char** host)
 			}
 			else
 			{
-				fprintf(stdout, "URL parse OK!\n");
+				//fprintf(stdout, "URL parse OK!\n");
 			}
 			return 1;
 		}
@@ -246,7 +247,7 @@ char* urlParse2Index(char* url)
 }
 */
 
-/*
+
 int getPageFromUrl(char* url, char** out)
 {
     int retcode = 0;
@@ -255,19 +256,32 @@ int getPageFromUrl(char* url, char** out)
     char responseHeader[2048] = {'\0'};
     int responseHeaderLen = 0;
     
-    char* page = urlParse2Index(url);
+    char* page;
+    char* host;
+    urlParse(url, &page, &host);
     
-    struct addrinfo *result = NULL;
-    struct addrinfo *ptr = NULL;
+    ADDRINFOA hints;
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    struct addrinfo* result;
+    struct addrinfo* ptr = NULL;
     SOCKET c = SOCKET_ERROR;
     struct sockaddr_in  *sockaddr_ipv4;
     
     //TODO: This need to be repaired
-    //getaddrinfo(url,0,0,&result);
-    
+    int dwRetval = getaddrinfo(host,0, &hints,&result);
+    if (dwRetval != 0) {
+        printf("getaddrinfo failed with error: %d\n", dwRetval);
+        //WSACleanup();
+        return 1;
+    }
+
     for(ptr =result;ptr != NULL;ptr=ptr->ai_next)
     {
-        sockaddr_ipv4 = (struct sockaddr_in *)result->ai_addr;
+        sockaddr_ipv4 = (struct sockaddr_in *)ptr->ai_addr;
     
         iResult = configClientIP_TCP(&c,inet_ntoa(sockaddr_ipv4->sin_addr),80);
         if(iResult == 0)
@@ -282,7 +296,7 @@ int getPageFromUrl(char* url, char** out)
     //TODO: ADD lenght check
     char request[1024] = {'\0'};
     strcat(request,"GET ");strcat(request,page);strcat(request," HTTP/1.0\r\n");
-    strcat(request,"Host: ");strcat(request,url);strcat(request,"\r\n");
+    strcat(request,"Host: ");strcat(request, host);strcat(request,"\r\n");
     strcat(request,"\r\n");
     
     send(c,request,strlen(request),0);
@@ -294,7 +308,7 @@ int getPageFromUrl(char* url, char** out)
     
     list_param_free(&respParam);
     free(page);
-    //free(host);
+    free(host);
     
     if(temp == 0)
     {
@@ -313,7 +327,7 @@ int getPageFromUrl(char* url, char** out)
         
     return retcode;
 }
-* */
+
 
 int configClientIP_TCP(SOCKET *t, const char* ip,const u_short port)
 {

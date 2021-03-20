@@ -7,6 +7,7 @@
 #include <time.h>
 //#define M_TCP
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #elif linux
 #define Sleep(x) sleep(x)
@@ -80,13 +81,29 @@ int test();
 //====================
 int main (int argc, char **argv)
 {
-	char* va = "https://www.youtube.com/watch?v=SNTltkuRiqw";
-	char* t = 0;
-	char* a = 0;
-	urlParse(va,&t, &a);
-	
-	return 0;
+   
+
+	return test();
 }
+
+int urlTest()
+{
+    initNet();
+    char* va = "https://www.fanfiction.net/";
+    char* t = 0;
+    char* a = 0;
+    urlParse(va, &t, &a);
+
+    printf("URL : %s\r\nhost : %s\r\npage : %s", va, a, t);
+
+    free(t);
+    free(a);
+    int ret = getPageFromUrl(va, &t);
+
+    endNet();
+    return ret;
+}
+
 int test()
 {
     int iResult = 0;
@@ -131,7 +148,7 @@ int applicationLoop_UDP(SOCKET *s)
     if (retcode != 0) // If the server start was a success
         return retcode;
         
-    int r = 0;
+    size_t r = 0;
     char buffer[1024] = {'\0'};
     struct sockaddr_in from;
     struct sockaddr_in to;
@@ -309,7 +326,7 @@ struct sock_list* addSocket(struct sock_list* sl, SOCKET s) {
 int getUpnpInfo()
 {
     SOCKET client = INVALID_SOCKET;
-    int r = 0; //return code
+    size_t r = 0; //return code
     char buffer[1024] = {'\0'};
     struct sockaddr_in from;
     struct sockaddr_in to;
@@ -342,12 +359,13 @@ int getUpnpInfo()
                 return -1;
             }
             
-            fprintf(stdout,"Received response packet from %s:%d sizeof:%d\n", inet_ntoa(from.sin_addr), ntohs(from.sin_port),r);
+            fprintf(stdout,"Received response packet from %s:%d sizeof:%zd\n", inet_ntoa (from.sin_addr), ntohs(from.sin_port),r);
             lastr=clock();
             //fprintf(stdout,"%s\n",buffer);
             //fwrite(buffer,sizeof(char),r,log);
             list_param t = parser(buffer,r);
             printUpnpInfo(&t);
+            fprintf(stdout,"\r\n\r\n",buffer);
 			list_param_free(&t);
         }
         else{
@@ -370,6 +388,7 @@ void printUpnpInfo(list_param* in)
     {
     	pnode_list_param p = list_param_at(in, i);
         printf("%s:%s\n",p->value.pname,p->value.pvalue);
+        i++;
     }
 }
 
